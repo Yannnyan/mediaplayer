@@ -12,7 +12,21 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 public class MediaPlayerService extends Service {
+    enum MediaEventTypes {
+        START_APP,
+        STOP_APP,
+        START_PLAYING,
+        STOP_PLAYING,
+        SEEK_INTO,
+        SKIP
+    }
+    public static class MediaPlayerEvent {
+        MediaEventTypes eventType;
+    }
 
     private final IBinder binder = new LocalBinder();
     private MediaPlayer mediaPlayer;
@@ -22,6 +36,25 @@ public class MediaPlayerService extends Service {
     public static final String ACTION_STOP = "ACTION_STOP";
     private static final String CHANNEL_ID = "MyServiceChannel";
 
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    private void onMessage(MediaPlayerEvent event) {
+        switch (event.eventType) {
+            case START_APP:
+                break;
+            case STOP_APP:
+                break;
+            case START_PLAYING:
+                break;
+            case STOP_PLAYING:
+                break;
+            case SEEK_INTO:
+                break;
+            case SKIP:
+                break;
+            default:
+        }
+    }
 
     public class LocalBinder extends Binder {
         public MediaPlayerService getService() {
@@ -46,7 +79,7 @@ public class MediaPlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "MyServiceChannel", NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription("PennSkanvTic channel for foreground service notification");
+        channel.setDescription("channel for foreground service notification");
 
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
@@ -57,10 +90,8 @@ public class MediaPlayerService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
 
-        // 👇 MUST be called immediately
         startForeground(1, notification);
 
-        // Safe to start MediaPlayer after this
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(this, R.raw.hello);
             mediaPlayer.setLooping(true);
