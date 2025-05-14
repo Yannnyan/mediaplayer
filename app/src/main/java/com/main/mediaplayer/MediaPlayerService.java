@@ -16,18 +16,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class MediaPlayerService extends Service {
-    enum MediaEventTypes {
-        START_APP,
-        STOP_APP,
-        START_PLAYING,
-        STOP_PLAYING,
-        SEEK_INTO,
-        SKIP
-    }
-    public static class MediaPlayerEvent {
-        MediaEventTypes eventType;
-    }
-
     private final IBinder binder = new LocalBinder();
     private MediaPlayer mediaPlayer;
 
@@ -40,10 +28,6 @@ public class MediaPlayerService extends Service {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     private void onMessage(MediaPlayerEvent event) {
         switch (event.eventType) {
-            case START_APP:
-                break;
-            case STOP_APP:
-                break;
             case START_PLAYING:
                 break;
             case STOP_PLAYING:

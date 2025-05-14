@@ -18,17 +18,18 @@ public class MainActivity  extends AppCompatActivity {
         Intent intent = new Intent(this, MediaPlayerService.class);
         intent.setAction(MediaPlayerService.ACTION_PLAY);
         ContextCompat.startForegroundService(this, intent);
-
     }
     @Override
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        EventBus.getDefault().post(AppLifeCycleEvent.AppLifeCycleStages.START_APP);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        EventBus.getDefault().post(AppLifeCycleEvent.AppLifeCycleStages.STOP_APP);
     }
 }
