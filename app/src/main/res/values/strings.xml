@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MediaPlayer</string>
+    <string name="playlist_path">/</string>
+    <string name="update_list_path">/</string>
 </resources>

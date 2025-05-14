@@ -1,6 +1,9 @@
-package com.main.mediaplayer;
+package com.main.mediaplayer.services;
 
 import android.util.Log;
+
+import com.main.mediaplayer.events.AppLifeCycleEvent;
+import com.main.mediaplayer.events.MediaPlayerEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,27 +28,25 @@ public class ListenerService {
     public boolean isListenerActive() {
         return sock != null && sock.isBound();
     }
-    public static ListenerService listenerService;
 
     private ServerSocket sock;
     private int port;
     private byte[] buffer = new byte[8192];
     public ListenerService(int port) {
+        EventBus.getDefault().register(this);
         this.port = port;
     }
     @Subscribe(threadMode = ThreadMode.ASYNC)
-    public static void onLifecycleEvent(AppLifeCycleEvent event) {
+    public void onEvent(AppLifeCycleEvent event) {
+        Log.i("INFO","APP STARTED");
         switch (event.event) {
             case START_APP:
-                if (listenerService == null) {
-                    listenerService = new ListenerService(51234);
-                    listenerService.startListening();
-                }
+                    startListening();
                 break;
             case STOP_APP:
             case RESTART_APP:
-                if (listenerService != null && listenerService.isListenerActive()) {
-                    listenerService.stopListening();
+                if (isListenerActive()) {
+                    stopListening();
                 }
                 break;
         }
@@ -55,6 +56,7 @@ public class ListenerService {
             if (sock.isBound()){
                 sock.close();
             }
+            EventBus.getDefault().unregister(this);
         }
         catch (IOException e) {
             Log.e("ERROR", Objects.requireNonNull(e.getMessage()));
@@ -67,31 +69,32 @@ public class ListenerService {
                 sock.close();
             }
             sock = new ServerSocket(port);
+            Log.i("INFO", "App started listening on port " + port);
             while (true) {
                 Socket conn = sock.accept();
                 InputStream stream = conn.getInputStream();
                 int msgLen = stream.read(buffer,0,buffer.length);
+                String command = new String(buffer,0,msgLen, StandardCharsets.UTF_8);
+                Log.i("INFO", command);
                 OutputStream outStream = conn.getOutputStream();
-                if (!parseMessage(msgLen)) {
-                    outStream.write(EXECUTE_MSG_ERROR(new String(buffer, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8));
+                if (!parseMessage(command)) {
+                    outStream.write(EXECUTE_MSG_ERROR(command).getBytes(StandardCharsets.UTF_8));
                 }
                 else{
-                    outStream.write(EXECUTE_MSG_SUCCESS(new String(buffer, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8));
+                    outStream.write(EXECUTE_MSG_SUCCESS(command).getBytes(StandardCharsets.UTF_8));
                 }
                 conn.close();
             }
-
         }
         catch (IOException e) {
             Log.e("ERROR", Objects.requireNonNull(e.getMessage()));
         }
     }
-    private boolean parseMessage(int msgLen) {
-        String msg = new String(buffer, StandardCharsets.UTF_8);
+    private boolean parseMessage(String command) {
         MediaPlayerEvent.MediaEventTypes eventType;
         try {
-            eventType = MediaPlayerEvent.MediaEventTypes.valueOf(msg);
-            EventBus.getDefault().post(eventType);
+            eventType = MediaPlayerEvent.MediaEventTypes.valueOf(command);
+            EventBus.getDefault().post(new MediaPlayerEvent(eventType));
             return true;
         }
         catch (IllegalArgumentException e) {

@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import org.greenrobot.eventbus.EventBus;
+import com.main.mediaplayer.services.MediaPlayerService;
 
 public class MainActivity  extends AppCompatActivity {
     @Override
@@ -22,14 +22,10 @@ public class MainActivity  extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
-        EventBus.getDefault().post(AppLifeCycleEvent.AppLifeCycleStages.START_APP);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
-        EventBus.getDefault().post(AppLifeCycleEvent.AppLifeCycleStages.STOP_APP);
     }
 }

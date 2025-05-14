@@ -1,4 +1,4 @@
-package com.main.mediaplayer;
+package com.main.mediaplayer.events;
 
 public class AppLifeCycleEvent {
     public enum AppLifeCycleStages {
@@ -7,4 +7,7 @@ public class AppLifeCycleEvent {
         RESTART_APP
     }
     public AppLifeCycleStages event;
+    public AppLifeCycleEvent(AppLifeCycleStages event) {
+        this.event = event;
+    }
 }
