@@ -32,4 +32,5 @@ dependencies {
     implementation 'androidx.annotation:annotation-jvm:1.9.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "org.greenrobot:eventbus:3.3.1"
+    implementation "com.github.ikiulian:java-youtube-downloader:3.3.0"
 }
